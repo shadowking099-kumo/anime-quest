@@ -9,7 +9,7 @@
 <section id="profile" hidden><div class="heading"><h2>Profil Hunter</h2></div><div id="stats" class="stats"></div><div class="heading"><h2>Sauvegarde</h2></div><button id="export" class="gold">Exporter bibliothèque JSON</button> <button id="reset">Réinitialiser les données locales</button><div class="notice">Prototype : +10 XP par épisode ajouté au compteur, +300 XP à la complétion via progression. Les règles XP définitives et les badges seront harmonisés ensuite.</div></section></main>
 <footer>ANIME QUEST · Prototype local · API Jikan non officielle de MyAnimeList</footer><dialog id="modal"><div id="modalContent"></div></dialog>
 <script>
-const API='https://api.jikan.moe/v1', $=s=>document.querySelector(s), key='aqCatalogV1';let lib=load(),results=[],filter='all',libFilter='all',busy=false;
+const API='https://api.tenrai.org/v1', $=s=>document.querySelector(s), key='aqCatalogV1';let lib=load(),results=[],filter='all',libFilter='all',busy=false;
 function load(){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return []}}function save(){localStorage.setItem(key,JSON.stringify(lib));renderLib();stats()}
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function msg(s){$('#notice').innerHTML=s?`<div class="notice">${s}</div>`:''}
