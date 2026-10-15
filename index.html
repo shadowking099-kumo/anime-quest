@@ -74,7 +74,32 @@ function stats(){
     </div>
   `;
 }
+const BADGES = [
+  {id:'etincelle', icon:'✨', name:'L’étincelle', desc:'Ajouter ton premier anime', test:lib=>lib.length>=1},
+  {id:'aventurier', icon:'⚔️', name:'Aventurier', desc:'Suivre 10 épisodes', test:lib=>lib.reduce((n,a)=>n+(+a.watched||0),0)>=10},
+  {id:'terminer', icon:'🏆', name:'Fin de quête', desc:'Terminer ton premier anime', test:lib=>lib.some(a=>a.status==='Terminés')},
+  {id:'cent', icon:'💯', name:'Centenaire', desc:'Suivre 100 épisodes', test:lib=>lib.reduce((n,a)=>n+(+a.watched||0),0)>=100},
+  {id:'mondes', icon:'🌌', name:'Au-delà des mondes', desc:'Suivre 1000 épisodes', test:lib=>lib.reduce((n,a)=>n+(+a.watched||0),0)>=1000}
+];
 
+function renderBadges(){
+  const unlocked = BADGES.filter(b=>b.test(lib));
+  $('#badges').innerHTML = `
+    <div class="heading"><h2>🏅 Collection de badges</h2></div>
+    <div class="grid">
+      ${BADGES.map(b=>{
+        const ok=unlocked.some(x=>x.id===b.id);
+        return `<article class="card" style="padding:14px;opacity:${ok?1:.45}">
+          <div style="font-size:30px">${ok?b.icon:'🔒'}</div>
+          <div class="title">${b.name}</div>
+          <div class="meta">${b.desc}</div>
+          <div class="meta">${ok?'✅ Débloqué':'🔒 Verrouillé'}</div>
+        </article>`;
+      }).join('')}
+    </div>
+    <p class="meta">${unlocked.length}/${BADGES.length} badges débloqués · +0 XP par badge</p>
+  `;
+}
 function detail(id){let a=results.find(x=>x.id===id)||item(id),saved=item(id);if(!a)return;$('#modalContent').innerHTML=`<div class="detail"><div>${a.image?`<img src="${esc(a.image)}" alt="">`:'✦'}</div><div><button style="float:right" onclick="$('#modal').close()">✕</button><div class="eyebrow">FICHE D'ANIME</div><h2>${esc(a.title)}</h2><div class="meta">${esc(a.type)} · ${a.year||'Année inconnue'} · ${a.episodes||'?'} épisodes ${a.score?'· ★ '+a.score:''}</div><p>${esc(a.synopsis||'Synopsis indisponible.')}</p><div class="meta">${esc((a.genres||[]).join(' · '))}</div>${saved?`<p>Bibliothèque : ${esc(saved.status)} · ${saved.watched||0}/${saved.episodes||'?'} épisodes</p>`:''}</div></div><div class="detailfoot">${saved?`<button class="primary" onclick="manage(${id})">Gérer progression</button>`:`<button class="primary" onclick="add(${id});$('#modal').close()">＋ Ajouter à ma bibliothèque</button>`}${a.url?`<a href="${esc(a.url)}" target="_blank" rel="noopener" class="gold">Source ↗</a>`:''}</div>`;$('#modal').showModal()}
 function manage(id){let a=item(id);if(!a)return;$('#modalContent').innerHTML=`<div style="padding:20px"><button style="float:right" onclick="$('#modal').close()">✕</button><div class="eyebrow">JOURNAL DE QUÊTE</div><h2>${esc(a.title)}</h2><p>Progression : ${a.watched||0}/${a.episodes||'?'} épisodes · ${a.xp||0} XP</p><label>Statut <select id="status" style="display:block;width:100%;padding:10px;margin:8px 0;background:var(--p);color:var(--txt)">${['À regarder','En cours','En pause','Terminés'].map(s=>`<option ${s===a.status?'selected':''}>${s}</option>`).join('')}</select></label><label>Épisodes vus <input id="watched" type="number" min="0" max="${a.episodes||99999}" value="${a.watched||0}" style="display:block;width:100%;padding:10px;margin:8px 0;background:var(--p);color:var(--txt)"></label><button class="primary" onclick="saveProgress(${id})">Enregistrer</button> <button onclick="removeItem(${id})">Retirer</button></div>`}
 function saveProgress(id){let a=item(id),old=+a.watched||0,w=Math.max(0,parseInt($('#watched').value)||0);if(a.episodes)w=Math.min(w,a.episodes);let gain=Math.max(0,w-old)*10;a.xp=(a.xp||0)+gain;a.watched=w;a.status=$('#status').value;let bonus=0;if(a.episodes&&w>=a.episodes&&!a.rewarded){bonus=300;a.xp+=bonus;a.rewarded=true;a.status='Terminés'}else if(a.episodes&&w>=a.episodes)a.status='Terminés';save();$('#modal').close();msg(`Progression enregistrée : +${gain+bonus} XP.`)}
