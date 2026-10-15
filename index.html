@@ -22,7 +22,59 @@ async function popular(){if(busy)return;busy=true;$('#searchBtn').disabled=$('#r
 async function search(){let q=$('#query').value.trim();if(!q){popular();return}if(busy)return;busy=true;$('#searchBtn').disabled=true;msg('Recherche en cours…');try{results=(await api('/anime?q='+encodeURIComponent(q)+'&limit=24&sfw=true')).map(normalize);$('#resultTitle').textContent='Résultats : '+q;draw($('#results'),results);msg(results.length?'Recherche terminée.':'Aucun résultat. Essaie un autre titre.')}catch(e){msg(esc(e.message))}finally{busy=false;$('#searchBtn').disabled=false}}
 function add(id){let a=results.find(x=>x.id===id)||item(id);if(!a)return;if(item(id)){msg('Déjà dans ta bibliothèque.');return}lib.unshift({...a,added:Date.now(),rewarded:false});save();draw($('#results'),results);msg('Anime ajouté à ta bibliothèque !')}
 function renderLib(){let a=libFilter==='all'?lib:lib.filter(x=>x.status===libFilter);$('#libTitle').textContent=`${a.length} aventure${a.length===1?'':'s'}`;draw($('#libraryGrid'),a,true)}
-function stats(){let eps=lib.reduce((n,a)=>n+(+a.watched||0),0),done=lib.filter(a=>a.status==='Terminés').length,xp=lib.reduce((n,a)=>n+(+a.xp||0),0);$('#stats').innerHTML=`<div class="stat"><b>${Math.floor(xp/500)+1}</b><br>Niveau</div><div class="stat"><b>${xp}</b><br>XP</div><div class="stat"><b>${done}</b><br>Anime terminés</div><div class="stat"><b>${eps}</b><br>Épisodes suivis</div><div class="stat"><b>${lib.length}</b><br>Anime en bibliothèque</div>`}
+
+function stats(){
+  let eps = lib.reduce((n,a)=>n+(+a.watched||0),0);
+  let done = lib.filter(a=>a.status==='Terminés').length;
+  let xp = lib.reduce((n,a)=>n+(+a.xp||0),0);
+
+  const ranks = [
+    {name:'E', min:0},
+    {name:'D', min:100},
+    {name:'C', min:300},
+    {name:'B', min:600},
+    {name:'A', min:1000},
+    {name:'S', min:1500}
+  ];
+
+  let i = 0;
+  for(let j=1;j<ranks.length;j++){
+    if(xp >= ranks[j].min) i=j;
+  }
+
+  const rank = ranks[i];
+  const next = ranks[i+1];
+  const progress = next
+    ? Math.floor((xp-rank.min)/(next.min-rank.min)*100)
+    : 100;
+
+  $('#stats').innerHTML = `
+    <div class="stat">
+      <b>${rank.name}-RANK</b><br>Rang Hunter
+    </div>
+    <div class="stat">
+      <b>${Math.floor(xp/500)+1}</b><br>Niveau
+    </div>
+    <div class="stat">
+      <b>${xp}</b><br>XP cumulés
+    </div>
+    <div class="stat">
+      <b>${done}</b><br>Anime terminés
+    </div>
+    <div class="stat">
+      <b>${eps}</b><br>Épisodes suivis
+    </div>
+    <div class="stat">
+      <b>${lib.length}</b><br>Anime en bibliothèque
+    </div>
+    <div class="stat">
+      <b>${progress}%</b><br>
+      ${next ? 'Progression vers le rang '+next.name
+             : 'Rang maximum atteint !'}
+    </div>
+  `;
+}
+
 function detail(id){let a=results.find(x=>x.id===id)||item(id),saved=item(id);if(!a)return;$('#modalContent').innerHTML=`<div class="detail"><div>${a.image?`<img src="${esc(a.image)}" alt="">`:'✦'}</div><div><button style="float:right" onclick="$('#modal').close()">✕</button><div class="eyebrow">FICHE D'ANIME</div><h2>${esc(a.title)}</h2><div class="meta">${esc(a.type)} · ${a.year||'Année inconnue'} · ${a.episodes||'?'} épisodes ${a.score?'· ★ '+a.score:''}</div><p>${esc(a.synopsis||'Synopsis indisponible.')}</p><div class="meta">${esc((a.genres||[]).join(' · '))}</div>${saved?`<p>Bibliothèque : ${esc(saved.status)} · ${saved.watched||0}/${saved.episodes||'?'} épisodes</p>`:''}</div></div><div class="detailfoot">${saved?`<button class="primary" onclick="manage(${id})">Gérer progression</button>`:`<button class="primary" onclick="add(${id});$('#modal').close()">＋ Ajouter à ma bibliothèque</button>`}${a.url?`<a href="${esc(a.url)}" target="_blank" rel="noopener" class="gold">Source ↗</a>`:''}</div>`;$('#modal').showModal()}
 function manage(id){let a=item(id);if(!a)return;$('#modalContent').innerHTML=`<div style="padding:20px"><button style="float:right" onclick="$('#modal').close()">✕</button><div class="eyebrow">JOURNAL DE QUÊTE</div><h2>${esc(a.title)}</h2><p>Progression : ${a.watched||0}/${a.episodes||'?'} épisodes · ${a.xp||0} XP</p><label>Statut <select id="status" style="display:block;width:100%;padding:10px;margin:8px 0;background:var(--p);color:var(--txt)">${['À regarder','En cours','En pause','Terminés'].map(s=>`<option ${s===a.status?'selected':''}>${s}</option>`).join('')}</select></label><label>Épisodes vus <input id="watched" type="number" min="0" max="${a.episodes||99999}" value="${a.watched||0}" style="display:block;width:100%;padding:10px;margin:8px 0;background:var(--p);color:var(--txt)"></label><button class="primary" onclick="saveProgress(${id})">Enregistrer</button> <button onclick="removeItem(${id})">Retirer</button></div>`}
 function saveProgress(id){let a=item(id),old=+a.watched||0,w=Math.max(0,parseInt($('#watched').value)||0);if(a.episodes)w=Math.min(w,a.episodes);let gain=Math.max(0,w-old)*10;a.xp=(a.xp||0)+gain;a.watched=w;a.status=$('#status').value;let bonus=0;if(a.episodes&&w>=a.episodes&&!a.rewarded){bonus=300;a.xp+=bonus;a.rewarded=true;a.status='Terminés'}else if(a.episodes&&w>=a.episodes)a.status='Terminés';save();$('#modal').close();msg(`Progression enregistrée : +${gain+bonus} XP.`)}
