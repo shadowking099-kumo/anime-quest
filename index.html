@@ -83,17 +83,25 @@ const BADGES = [
   {id:'cent', icon:'💯', name:'Centenaire', desc:'Suivre 100 épisodes', test:lib=>lib.reduce((n,a)=>n+(+a.watched||0),0)>=100},
   {id:'mondes', icon:'🌌', name:'Au-delà des mondes', desc:'Suivre 1000 épisodes', test:lib=>lib.reduce((n,a)=>n+(+a.watched||0),0)>=1000}
 ];
-let previousBadges = [];
-
+let previousBadges = JSON.parse(localStorage.getItem('aqSeenBadges') || 'null');
 function checkNewBadges(){
   const unlocked = BADGES.filter(b => b.test(lib));
+  const ids = unlocked.map(b => b.id);
+
+  if(previousBadges === null){
+    previousBadges = ids;
+    localStorage.setItem('aqSeenBadges', JSON.stringify(ids));
+    return;
+  }
+
   const newBadges = unlocked.filter(b => !previousBadges.includes(b.id));
 
   newBadges.forEach(b => {
     msg(`🏅 Badge débloqué : ${b.icon} ${b.name} !`);
   });
 
-  previousBadges = unlocked.map(b => b.id);
+  previousBadges = ids;
+  localStorage.setItem('aqSeenBadges', JSON.stringify(ids));
 }
 function renderBadges(){
   const unlocked = BADGES.filter(b=>b.test(lib));
