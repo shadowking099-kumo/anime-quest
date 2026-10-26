@@ -147,6 +147,50 @@ function stats(){
     renderBadges();
   checkNewBadges();
 }
+  // JOURNAL DU HUNTER
+const JOURNAL_KEY = 'aqHunterJournal';
+
+function getJournal(){
+  try {
+    return JSON.parse(localStorage.getItem(JOURNAL_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function addJournalEntry(icon, title, description){
+  const entries = getJournal();
+
+  entries.unshift({
+    icon,
+    title,
+    description,
+    date: new Date().toISOString()
+  });
+
+  localStorage.setItem(JOURNAL_KEY, JSON.stringify(entries.slice(0, 50)));
+  renderJournal();
+}
+
+function renderJournal(){
+  const container = document.querySelector('#journalEntries');
+  if(!container) return;
+
+  const entries = getJournal();
+  const empty = document.querySelector('.journal-empty');
+
+  if(empty){
+    empty.style.display = entries.length ? 'none' : 'block';
+  }
+
+  container.innerHTML = entries.map(entry => `
+    <article class="journal-entry">
+      <strong>${entry.icon} ${entry.title}</strong>
+      <div>${entry.description}</div>
+      <small>${new Date(entry.date).toLocaleString('fr-FR')}</small>
+    </article>
+  `).join('');
+}
 const BADGES = [
   {id:'etincelle', icon:'✨', name:'L’étincelle', desc:'Ajouter ton premier anime', test:lib=>lib.length>=1},
   {id:'aventurier', icon:'⚔️', name:'Aventurier', desc:'Suivre 10 épisodes', test:lib=>lib.reduce((n,a)=>n+(+a.watched||0),0)>=10},
