@@ -212,6 +212,9 @@ function checkNewBadges(){
   const newBadges = unlocked.filter(b => !previousBadges.includes(b.id));
 
   newBadges.forEach(b => {
+  addJournalEntry('🏅', 'Badge débloqué : ' + b.name,
+    'Tu as obtenu le badge ' + b.name + ' !');
+
   const toast = document.createElement('div');
   toast.className = 'notice';
   toast.textContent = `🏅 Badge débloqué : ${b.icon} ${b.name} !`;
