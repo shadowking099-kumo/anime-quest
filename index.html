@@ -4,12 +4,24 @@
 #badgeToast .notice{
   border-color:var(--gold);
   color:var(--gold);
-  animation:badgePop .45s ease-out;
   font-weight:800;
+  animation:badgePop .6s cubic-bezier(.18,.89,.32,1.28);
+  box-shadow:0 0 18px rgba(255,200,70,.22);
 }
+
 @keyframes badgePop{
-  from{opacity:0;transform:translateY(-12px) scale(.95)}
-  to{opacity:1;transform:translateY(0) scale(1)}
+  0%{
+    opacity:0;
+    transform:translateY(-18px) scale(.85);
+  }
+  65%{
+    opacity:1;
+    transform:translateY(3px) scale(1.04);
+  }
+  100%{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
 }
 </style></head><body>
 <header><div><b class="brand">⚔ ANIME <span>QUEST</span></b><div class="meta">FORGE TA LÉGENDE, UN ANIME À LA FOIS</div></div><div class="nav"><button data-view="explore" class="active">Explorer</button><button data-view="library">Bibliothèque</button><button data-view="profile">Profil Hunter</button></div></header>
