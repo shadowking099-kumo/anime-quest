@@ -23,6 +23,48 @@
     transform:translateY(0) scale(1);
   }
 }
+  /* JOURNAL DU HUNTER */
+.hunter-journal{
+  margin-top:24px;
+  padding:20px;
+  border:1px solid rgba(255,200,70,.35);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(40,20,25,.96),rgba(15,15,22,.98));
+  box-shadow:0 0 20px rgba(255,180,50,.08);
+}
+
+.hunter-journal h2{
+  margin:0 0 12px;
+  color:var(--gold);
+  font-size:1.25rem;
+}
+
+.journal-empty{
+  color:var(--muted);
+  font-size:.92rem;
+  line-height:1.5;
+}
+
+#journalEntries{
+  display:grid;
+  gap:10px;
+}
+
+.journal-entry{
+  padding:12px;
+  border-left:3px solid var(--gold);
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  animation:badgePop .4s ease-out;
+}
+
+.journal-entry small{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:.78rem;
+}
 </style></head><body>
 <header><div><b class="brand">⚔ ANIME <span>QUEST</span></b><div class="meta">FORGE TA LÉGENDE, UN ANIME À LA FOIS</div></div><div class="nav"><button data-view="explore" class="active">Explorer</button><button data-view="library">Bibliothèque</button><button data-view="profile">Profil Hunter</button></div></header>
 <main><section class="hero"><div class="eyebrow">GUILDE DES HUNTERS</div><h1>Quel monde vas-tu explorer ?</h1><p>Recherche dans un véritable catalogue d’anime, découvre leurs fiches et ajoute tes prochaines aventures.</p></section>
