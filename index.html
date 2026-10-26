@@ -109,8 +109,15 @@ function checkNewBadges(){
   const newBadges = unlocked.filter(b => !previousBadges.includes(b.id));
 
   newBadges.forEach(b => {
-    $('#badgeToast').innerHTML = `<div class="notice">🏅 Badge débloqué : ${b.icon} ${b.name} !</div>`;$('#badgeToast').innerHTML = `<div class="notice">🏅 Badge débloqué : ${b.icon} ${b.name} !</div>`;
-  });
+  const toast = document.createElement('div');
+  toast.className = 'notice';
+  toast.textContent = `🏅 Badge débloqué : ${b.icon} ${b.name} !`;
+  $('#badgeToast').appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
+});
 
   previousBadges = ids;
   localStorage.setItem('aqSeenBadges', JSON.stringify(ids));
